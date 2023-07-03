@@ -12,14 +12,16 @@ datasource db {
 }
 
 model Store {
-  id String @id @default(uuid())
   // from form
   name String
   // from clerk
   userId String
+  // below 3 created by prisma (id of store etc)
+  id String @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 // at end run npx prisma generate before using query
 // then npx prisma db push
+//  npx prisma migrate reset to delete all data

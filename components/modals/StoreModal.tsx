@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { toast } from "react-hot-toast";
 import { useForm } from "react-hook-form";
@@ -33,6 +34,8 @@ const formSchema = z.object({
 type FormSchema = z.infer<typeof formSchema>;
 
 export const StoreModal = () => {
+  const router = useRouter();
+
   // zustand state management
   const isOpen = useStoreModal((state) => state.isOpen);
   const onClose = useStoreModal((state) => state.onClose);
@@ -53,7 +56,6 @@ export const StoreModal = () => {
 
   // 2. Define Submit Handler
   const onSubmit = async (values: FormSchema) => {
-    console.log(values);
     try {
       setLoading(true);
 
@@ -65,9 +67,13 @@ export const StoreModal = () => {
       });
 
       const responseData = await response.json();
-      toast.success(`E-commerce store ${responseData.name} created`);
+      // toast.success(`E-commerce store ${responseData.name} created`);
+      // router.push(`/${responseData.id}`);
+      // other method that has less bugs since it causes a full page reload
+      // with method below, the modal goes away
+      window.location.assign(`/${responseData.id}`);
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(`Something went wrong, error: ${error}`);
     } finally {
       setLoading(false);
     }

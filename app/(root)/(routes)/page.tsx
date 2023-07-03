@@ -1,6 +1,5 @@
 "use client";
 
-import { Modal } from "@/components/ui/Modal";
 import { useStoreModal } from "@/hooks/UseStoreModal";
 import { useEffect } from "react";
 
@@ -14,5 +13,7 @@ export default function SetupPage() {
     }
   }, [isOpen, onOpen]);
 
-  return <div className="p-4">Root Page</div>;
+  // dont need to return anything as only using this page to
+  // trigger the modal
+  return null;
 }
