@@ -21,7 +21,7 @@ export default async function NavBar() {
   return (
     <div className=" border-b">
       <div className="flex h-16 items-center px-4">
-        <StoreSwitcher items={stores} />
+        <StoreSwitcher stores={stores} />
         <MainNav className="mx-6" />
         {/* ml auto moves all the way to right */}
         <div className=" ml-auto flex items-center space-x-4">

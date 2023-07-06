@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
@@ -13,9 +14,18 @@ export default function MainNav({
 
   const routes = [
     {
-      // this navbar is used insode the [storeId], and although its in
+      href: `/${params.storeId}`,
+      label: "Dashboard",
+      active: pathname === `/${params.storeId}`,
+    },
+    {
+      href: `/${params.storeId}/billboards`,
+      label: "Billboards",
+      active: pathname === `/${params.storeId}/billboards`,
+    },
+    {
+      // this navbar is used inside the layout of [storeId], and although its in
       // components folder, it still gets the params from that layout
-      // inside [storeId]
       // when we click, we will only see the settings for that spefici store
       href: `/${params.storeId}/settings`,
       label: "Settings",

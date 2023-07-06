@@ -33,6 +33,8 @@ export default async function DashBoardLayout({
 
   return (
     <>
+      {/* NavBar will have access to params since its child of layout,
+      which is the /storeId */}
       <NavBar />
       {children}
     </>

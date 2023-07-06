@@ -1,20 +1,20 @@
 "use client";
 
 import { useState } from "react";
-
-import { Store } from "@prisma/client";
 import { useParams, useRouter } from "next/navigation";
+
+import { cn } from "@/lib/utils";
+import { Store } from "@prisma/client";
+
+import { useStoreModal } from "@/hooks/UseStoreModal";
+import { Button } from "./ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Check,
   ChevronsUpDown,
   PlusCircle,
   Store as StoreIcon,
 } from "lucide-react";
-
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { useStoreModal } from "@/hooks/UseStoreModal";
-import { Button } from "./ui/button";
-import { cn } from "@/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -30,12 +30,23 @@ type PopoverTriggerProps = React.ComponentPropsWithoutRef<
 >;
 
 interface StoreSwitcherProps extends PopoverTriggerProps {
-  items: Store[];
+  stores: Store[];
 }
 
+// each store should look like this:
+// model Store {
+//     // from form
+//     name String
+//     // from clerk
+//     userId String
+//     // below 3 created by prisma (id of store etc)
+//     id String @id @default(uuid())
+//     createdAt DateTime @default(now())
+//     updatedAt DateTime @updatedAt
+//   }
 export default function StoreSwitcher({
   className,
-  items = [],
+  stores = [],
 }: StoreSwitcherProps) {
   const onOpen = useStoreModal((state) => state.onOpen);
   const isOpen = useStoreModal((state) => state.isOpen);
@@ -43,40 +54,54 @@ export default function StoreSwitcher({
   const params = useParams();
   const router = useRouter();
 
-  // formattedItems is an array
-  const formattedItems = items.map((item) => ({
-    label: item.name,
-    value: item.id,
+  // formattedItems is an array, where each store has a name and id
+  // id is for key and param purposes
+  const formattedStores = stores.map((store) => ({
+    name: store.name,
+    id: store.id,
   }));
 
-  // find the item that has the same value as params.storeId
+  // find the store that has the same id as params.storeId
   // since this will be the current active/selected store
-  const currentStore = formattedItems.find(
-    (item) => item.value === params.storeId
+  const currentStore = formattedStores.find(
+    (store) => store.id === params.storeId
   );
 
+  // state of popover
   const [open, setOpen] = useState(false);
 
-  const onStoreSelect = (store: { value: string; label: string }) => {
+  interface FormattedStoreProps {
+    id: string;
+    name: string;
+  }
+
+  const onStoreSelect = (store: FormattedStoreProps) => {
     // once we click on a diff store, we will close the store switcher
     // and redirect to that store id
     setOpen(false);
-    router.push(`/${store.value}`);
+    router.push(`/${store.id}`);
   };
 
   return (
+    // remind that open and onOpenChange are props expected for
+    // this shadcn component
     <Popover open={open} onOpenChange={setOpen}>
+      {/* asChild is needed to avoid hydration errors */}
+      {/* recommended to use with Trigger from shadcn docs when
+      using non default react components */}
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           size="sm"
+          // comboboxrole identifies an element a san input that controls other elements
+          // that can dynamically pop up to help te user set the value of that input
           role="combobox"
           aria-expanded={open}
           aria-label="Select a store"
           className={cn("w-[200px] justify-between", className)}
         >
           <StoreIcon className=" mr-2 h-4 w-4" />
-          {currentStore?.label}
+          {currentStore?.name}
           {/* ml-auto pushes all the way to the right */}
           <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -87,18 +112,18 @@ export default function StoreSwitcher({
             <CommandInput placeholder="Search store..." />
             <CommandEmpty>No store found.</CommandEmpty>
             <CommandGroup heading="Stores">
-              {formattedItems.map((store) => (
+              {formattedStores.map((store) => (
                 <CommandItem
-                  key={store.value}
+                  key={store.id}
                   onSelect={() => onStoreSelect(store)}
                   className=" text-sm"
                 >
                   <StoreIcon className=" mr-2 h-4 w-4" />
-                  {store.label}
+                  {store.name}
                   <Check
                     className={cn(
                       "ml-auto h-4 w-4",
-                      currentStore?.value === store.value
+                      currentStore?.id === store.id
                         ? "opacity-100"
                         : "opacity-0"
                     )}

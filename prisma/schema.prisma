@@ -16,12 +16,29 @@ model Store {
   name String
   // from clerk
   userId String
+  // one to many relationship, one store can have an array of billboards
+  billboards Billboard[] @relation("StoreToBillboard")
   // below 3 created by prisma (id of store etc)
   id String @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+}
+model Billboard {
+  id String @id @default(uuid())
+  storeId String
+  // billboards can only exist inside a specific store
+  // targetting the field storeId, and refering to id from Store model
+  store Store @relation("StoreToBillboard", fields: [storeId], references: [id])
+  label String
+  imageUrl String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+// fixes error with relation
+  @@index([storeId])
 }
 
 // at end run npx prisma generate before using query
 // then npx prisma db push
-//  npx prisma migrate reset to delete all data
+// npx prisma migrate reset to delete all data
