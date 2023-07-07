@@ -10,11 +10,12 @@ import { Billboard } from "@prisma/client";
 import { toast } from "react-hot-toast";
 import { Trash } from "lucide-react";
 
-import UseOrigin from "@/hooks/UseOrigin";
 import Heading from "@/components/ui/Heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import AlertModal from "@/components/modals/AlertModal";
+import ImageUpload from "@/components/ui/ImageUpload";
 import {
   Form,
   FormControl,
@@ -23,9 +24,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import AlertModal from "@/components/modals/AlertModal";
-import ApiAlert from "@/components/ui/ApiAlert";
-import ImageUpload from "@/components/ui/ImageUpload";
 
 const billboardFormValuesSchema = z.object({
   label: z.string().min(1),
@@ -44,9 +42,6 @@ export default function BillBoardForm({ billboard }: BillboardFormProps) {
 
   const router = useRouter();
   const params = useParams();
-  // using to not get hydration error. The hook is essentially only working
-  // if the window object is available, meaning the ssr is complete
-  const origin = UseOrigin();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,24 +65,32 @@ export default function BillBoardForm({ billboard }: BillboardFormProps) {
       setIsLoading(true);
 
       if (billboard) {
-        await fetch(`/api/${params.storeId}/billboards`, {
-          method: "PATCH",
-          body: JSON.stringify({
-            label: formInputData.label,
-          }),
-        });
+        const response = await fetch(
+          `/api/${params.storeId}/billboards/${params.billboardId}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify({
+              label: formInputData.label,
+              imageUrl: formInputData.imageUrl,
+            }),
+          }
+        );
+
+        // else its for a new billboard
       } else {
-        await fetch(`/api/${params.storeId}/billboards`, {
+        const response = await fetch(`/api/${params.storeId}/billboards`, {
           method: "POST",
           body: JSON.stringify({
             label: formInputData.label,
+            imageUrl: formInputData.imageUrl,
           }),
         });
       }
 
       // to see the navbar reload with name
       router.refresh();
-      toast.success("Store updated");
+      router.push(`/${params.storeId}/billboards`);
+      toast.success(toastMessage);
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
@@ -98,14 +101,16 @@ export default function BillBoardForm({ billboard }: BillboardFormProps) {
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await fetch(`/api/stores/${store.id}`, {
+      await fetch(`/api/${params.storeId}/billboards/${params.billboardId}`, {
         method: "DELETE",
       });
       router.refresh();
       router.push("/");
-      toast.success("Store deleted");
+      toast.success("Billboard deleted");
     } catch (error) {
-      toast.error("Make sure you removed all products and categories first");
+      toast.error(
+        "Make sure you removed all categories using this billboard first"
+      );
     } finally {
       setIsLoading(false);
       setIsOpen(false);

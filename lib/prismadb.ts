@@ -1,6 +1,8 @@
 // used to connect to to a prisma db
 import { PrismaClient } from "@prisma/client";
 
+// all this from prisma docs on using prisma with nextjs
+
 declare global {
   // var prisma is type PrismaClient or undefined
   var prisma: PrismaClient | undefined;

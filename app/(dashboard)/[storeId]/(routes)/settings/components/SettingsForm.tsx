@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,6 +41,7 @@ export default function SettingsForm({ store }: SettingsFormProps) {
   // const params = useParams();
 
   const router = useRouter();
+  const params = useParams();
   // using to not get hydration error. The hook is essentially only working
   // if the window object is available, meaning the ssr is complete
   const origin = UseOrigin();
@@ -58,7 +59,7 @@ export default function SettingsForm({ store }: SettingsFormProps) {
     try {
       setIsLoading(true);
 
-      await fetch(`/api/stores/${store.id}`, {
+      await fetch(`/api/stores/${params.storeId}`, {
         method: "PATCH",
         body: JSON.stringify({
           name: formInputData.name,
@@ -78,7 +79,7 @@ export default function SettingsForm({ store }: SettingsFormProps) {
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await fetch(`/api/stores/${store.id}`, {
+      await fetch(`/api/stores/${params.storeId}`, {
         method: "DELETE",
       });
       router.refresh();
