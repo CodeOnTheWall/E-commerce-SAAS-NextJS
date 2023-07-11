@@ -105,7 +105,7 @@ export default function BillBoardForm({ billboard }: BillboardFormProps) {
         method: "DELETE",
       });
       router.refresh();
-      router.push("/");
+      router.push(`/${params.storeId}/billboards`);
       toast.success("Billboard deleted");
     } catch (error) {
       toast.error(
