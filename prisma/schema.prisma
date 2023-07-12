@@ -17,21 +17,79 @@ model Store {
   // from clerk
   userId String
   // one to many relationship, one store can have an array of billboards
+  // and an array of categories
   billboards Billboard[] @relation("StoreToBillboard")
+  categories Category[] @relation("StoreToCategory")
+  sizes Size[] @relation("StoreToSize")
+  colors Color[] @relation("StoreToColor")
   // below 3 created by prisma (id of store etc)
   id String @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
 }
+
 model Billboard {
   id String @id @default(uuid())
   storeId String
   // billboards can only exist inside a specific store
   // targetting the field storeId, and refering to id from Store model
   store Store @relation("StoreToBillboard", fields: [storeId], references: [id])
+  // a Billboard can be associated with multple Categories
+  categories Category[]
   label String
   imageUrl String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+// fixes error with relation
+  @@index([storeId])
+}
+
+// each category belongs to specific store (1-many, 1 store has
+// many categories)
+model Category {
+  id String @id @default(uuid())
+  storeId String
+  // categories can only exist inside a specific store
+  // targetting the field storeId, and refering to id from Store model
+  store Store @relation("StoreToCategory", fields: [storeId], references: [id])
+  billboardId String
+  // field billboardId is the referenced id from model Billboard
+  // Each category can only be associated with a single Billboard
+  billboard Billboard @relation(fields: [billboardId], references: [id])
+  name String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+// fixes error with relation
+  @@index([storeId])
+  @@index([billboardId])
+}
+
+model Size {
+  id String @id @default(uuid())
+  storeId String
+  // Size can only exist inside a specific store
+  // targetting the field storeId, and refering to id from Store model
+  store Store @relation("StoreToSize", fields: [storeId], references: [id])
+  name String
+  value String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+// fixes error with relation
+  @@index([storeId])
+}
+
+model Color {
+  id String @id @default(uuid())
+  storeId String
+  // Color can only exist inside a specific store
+  // targetting the field storeId, and refering to id from Store model
+  store Store @relation("StoreToColor", fields: [storeId], references: [id])
+  name String
+  value String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

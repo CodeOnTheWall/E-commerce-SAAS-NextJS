@@ -1,6 +1,8 @@
 import { authMiddleware } from "@clerk/nextjs";
 
-export default authMiddleware();
+export default authMiddleware({
+  publicRoutes: ["/api/:path*"],
+});
 
 // all routes that start with / or /api are protected
 // The authMiddleware middleware will check if the current user is logged
