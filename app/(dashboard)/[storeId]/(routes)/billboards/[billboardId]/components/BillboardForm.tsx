@@ -26,8 +26,8 @@ import {
 } from "@/components/ui/form";
 
 const billboardFormValuesSchema = z.object({
-  label: z.string().min(1),
-  imageUrl: z.string().min(1),
+  label: z.string().min(1, { message: "Label must be at least 1 character" }),
+  imageUrl: z.string().min(1, { message: "Image must be a string" }),
 });
 type BillboardFormValuesSchema = z.infer<typeof billboardFormValuesSchema>;
 
@@ -35,6 +35,7 @@ interface BillboardFormProps {
   billboard: Billboard | null;
 }
 
+// using this form for both new and update
 export default function BillBoardForm({ billboard }: BillboardFormProps) {
   // could use useParams to get from url, but already passing in the store
   // so can just do store.id

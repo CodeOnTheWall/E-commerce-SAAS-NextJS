@@ -10,7 +10,7 @@ interface ColorPageProps {
 // params always available on server side, and we have billboardId since
 // we are inside [billboardId]
 
-export default async function SizePage({ params }: ColorPageProps) {
+export default async function ColorPage({ params }: ColorPageProps) {
   const color = await prismadb.color.findUnique({
     where: {
       id: params.colorId,

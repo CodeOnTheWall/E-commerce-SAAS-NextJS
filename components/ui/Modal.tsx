@@ -17,15 +17,21 @@ interface ModalProps {
   children?: React.ReactNode;
 }
 
-export const Modal: React.FC<ModalProps> = ({
+export default function Modal({
   title,
   description,
   isOpen,
   onClose,
   children,
-}) => {
+}: ModalProps) {
+  // isOpen is set to true via the root page
+
   const onChange = (open: boolean) => {
+    // open will be false since onOpenChange (clicking outside modal, or the
+    // built in x) auto passes open as false
+    // !false = true
     if (!open) {
+      // sets isOpen back to false
       onClose();
     }
   };
@@ -33,7 +39,7 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     // open and onOpenChange are expected props from shadcn for Dialog
     // clicking outside the box and on the built in x causes onOpenChange
-    // event to trigger
+    // event to trigger, which causes open to be false automatically
     <Dialog open={isOpen} onOpenChange={onChange}>
       <DialogContent>
         <DialogHeader>
@@ -44,4 +50,4 @@ export const Modal: React.FC<ModalProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+}

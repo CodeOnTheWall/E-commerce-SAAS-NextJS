@@ -1,7 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
@@ -39,9 +37,19 @@ export default function MainNav({
       active: pathname === `/${params.storeId}/colors`,
     },
     {
+      href: `/${params.storeId}/products`,
+      label: "Products",
+      active: pathname === `/${params.storeId}/products`,
+    },
+    {
+      href: `/${params.storeId}/orders`,
+      label: "Orders",
+      active: pathname === `/${params.storeId}/orders`,
+    },
+    {
       // this navbar is used inside the layout of [storeId], and although its in
       // components folder, it still gets the params from that layout
-      // when we click, we will only see the settings for that spefici store
+      // when we click, we will only see the settings for that specific store
       href: `/${params.storeId}/settings`,
       label: "Settings",
       active: pathname === `/${params.storeId}/settings`,
@@ -49,18 +57,15 @@ export default function MainNav({
   ];
 
   return (
-    <nav className={cn("flex items-center space-x-4 lg:space-x-6", className)}>
-      {/* <nav className={`flex items-center space-x-4 lg:space-x-6" ${className}`}> */}
+    <nav className={`flex items-center space-x-4 lg:space-x-6 ${className}`}>
       {routes.map((route) => (
         <Link
           key={route.href}
           href={route.href}
-          className={cn(
-            "text-sm font-medium transition-colors hover:text-primary",
-            route.active
-              ? "text-black dark:text-white"
-              : "text-muted-foreground"
-          )}
+          className={`
+        text-sm font-medium transition-colors hover:text-primary
+        ${route.active ? "text-black dark:text-white" : "text-muted-foreground"}
+      `}
         >
           {route.label}
         </Link>

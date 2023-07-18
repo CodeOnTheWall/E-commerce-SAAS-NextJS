@@ -4,15 +4,17 @@ import { redirect } from "next/navigation";
 
 import NavBar from "@/components/NavBar";
 
+interface DashBoardLayoutProps {
+  children: React.ReactNode;
+  params: { storeId: string };
+}
+
 // params are received from the url - in this case store.id
 // which was passed from root layout
 export default async function DashBoardLayout({
   children,
   params,
-}: {
-  children: React.ReactNode;
-  params: { storeId: string };
-}) {
+}: DashBoardLayoutProps) {
   const { userId } = auth();
 
   if (!userId) {

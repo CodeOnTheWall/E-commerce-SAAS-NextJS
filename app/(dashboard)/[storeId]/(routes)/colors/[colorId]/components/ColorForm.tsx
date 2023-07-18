@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import AlertModal from "@/components/modals/AlertModal";
-import ImageUpload from "@/components/ui/ImageUpload";
 import {
   Form,
   FormControl,
@@ -27,7 +26,9 @@ import {
 
 const colorFormValuesSchema = z.object({
   name: z.string().min(1),
-  value: z.string().min(1),
+  value: z.string().min(4).regex(/^#/, {
+    message: "String must be a valid hex code",
+  }),
 });
 type ColorFormValuesSchema = z.infer<typeof colorFormValuesSchema>;
 
@@ -66,7 +67,7 @@ export default function ColorForm({ color }: ColorFormProps) {
 
       if (color) {
         const response = await fetch(
-          `/api/${params.storeId}/colors/${params.sizeId}`,
+          `/api/${params.storeId}/colors/${params.colorId}`,
           {
             method: "PATCH",
             body: JSON.stringify({
@@ -101,12 +102,12 @@ export default function ColorForm({ color }: ColorFormProps) {
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await fetch(`/api/${params.storeId}/colors/${params.sizeId}`, {
+      await fetch(`/api/${params.storeId}/colors/${params.colorId}`, {
         method: "DELETE",
       });
       router.refresh();
       router.push(`/${params.storeId}/colors`);
-      toast.success("Size deleted");
+      toast.success("Color deleted");
     } catch (error) {
       toast.error("Make sure you removed all products using this color first");
     } finally {
@@ -167,11 +168,17 @@ export default function ColorForm({ color }: ColorFormProps) {
                 <FormItem>
                   <FormLabel>Value</FormLabel>
                   <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="Color value"
-                      {...field}
-                    />
+                    <div className=" flex items-center gap-x-4">
+                      <Input
+                        disabled={isLoading}
+                        placeholder="Color value"
+                        {...field}
+                      />
+                      <div
+                        className=" border p-4 rounded-full"
+                        style={{ backgroundColor: field.value }}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

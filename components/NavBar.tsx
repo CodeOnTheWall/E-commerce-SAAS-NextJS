@@ -20,6 +20,7 @@ export default async function NavBar() {
 
   return (
     <div className=" border-b">
+      {/* reminder items center is cross axis */}
       <div className="flex h-16 items-center px-4">
         <StoreSwitcher stores={stores} />
         <MainNav className="mx-6" />

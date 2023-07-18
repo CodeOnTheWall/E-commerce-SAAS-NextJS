@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
-import { cn } from "@/lib/utils";
 import { Store } from "@prisma/client";
 
 import { useStoreModal } from "@/hooks/UseStoreModal";
@@ -48,8 +47,8 @@ export default function StoreSwitcher({
   className,
   stores = [],
 }: StoreSwitcherProps) {
+  // if this gets called, the store
   const onOpen = useStoreModal((state) => state.onOpen);
-  const isOpen = useStoreModal((state) => state.isOpen);
 
   const params = useParams();
   const router = useRouter();
@@ -92,18 +91,19 @@ export default function StoreSwitcher({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
+          size="lg"
           // comboboxrole identifies an element a san input that controls other elements
           // that can dynamically pop up to help te user set the value of that input
           role="combobox"
           aria-expanded={open}
           aria-label="Select a store"
-          className={cn("w-[200px] justify-between", className)}
+          className={`w-[200px] justify-between ${className}`}
         >
           <StoreIcon className=" mr-2 h-4 w-4" />
           {currentStore?.name}
-          {/* ml-auto pushes all the way to the right */}
-          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          {/* ml-auto pushes all the way to the right
+          shrink0 so that it doesnt shrink to fit available space */}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className=" w-[200px] p-0">
@@ -121,12 +121,11 @@ export default function StoreSwitcher({
                   <StoreIcon className=" mr-2 h-4 w-4" />
                   {store.name}
                   <Check
-                    className={cn(
-                      "ml-auto h-4 w-4",
+                    className={`ml-auto h-4 w-4 ${
                       currentStore?.id === store.id
                         ? "opacity-100"
                         : "opacity-0"
-                    )}
+                    }`}
                   />
                 </CommandItem>
               ))}

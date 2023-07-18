@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Modal } from "../ui/Modal";
+import Modal from "../ui/Modal";
 import { Button } from "../ui/button";
 
 interface AlertModalProps {

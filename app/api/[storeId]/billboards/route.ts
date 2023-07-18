@@ -40,7 +40,7 @@ export async function POST(
     const body = await req.json();
 
     const { label, imageUrl } = body;
-    console.log(label, imageUrl);
+    // console.log(label, imageUrl);
 
     // not logged in
     if (!userId) {

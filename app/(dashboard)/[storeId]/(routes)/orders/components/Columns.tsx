@@ -10,14 +10,14 @@ import CellAction from "./CellAction";
 export type BillboardColumn = {
   label: string;
   createdAt: string;
-  // id of the individual billboard
+  // id of the individual column/billboard
   id: string;
 };
 
 // header is what is shown
 export const Columns: ColumnDef<BillboardColumn>[] = [
   {
-    // accessorKeys correspond to the key in the data object (formattedBillboards)
+    // accessorKeys correspond to the key in the data object
     // that contains the value for that column
     // hence label and createdAt are types of the formattedBillboards
     accessorKey: "label",

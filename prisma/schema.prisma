@@ -12,55 +12,51 @@ datasource db {
 }
 
 model Store {
-  // from form
-  name String
-  // from clerk
-  userId String
-  // one to many relationship, one store can have an array of billboards
-  // and an array of categories
-  billboards Billboard[] @relation("StoreToBillboard")
-  categories Category[] @relation("StoreToCategory")
-  sizes Size[] @relation("StoreToSize")
-  colors Color[] @relation("StoreToColor")
   // below 3 created by prisma (id of store etc)
-  id String @id @default(uuid())
+  id        String @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  name      String
+  // from clerk
+  userId    String
+  // one to many relationship: [] i.e. 1 store has many billboards
+  billboards Billboard[] @relation("StoreToBillboard")
+  categories Category[]  @relation("StoreToCategory")
+  sizes      Size[]      @relation("StoreToSize")
+  colors     Color[]     @relation("StoreToColor")
+  products   Product[]   @relation("StoreToProduct")
+  orders     Order[]     @relation("StoreToOrder")
 }
 
 model Billboard {
-  id String @id @default(uuid())
-  storeId String
-  // billboards can only exist inside a specific store
-  // targetting the field storeId, and refering to id from Store model
-  store Store @relation("StoreToBillboard", fields: [storeId], references: [id])
-  // a Billboard can be associated with multple Categories
-  categories Category[]
-  label String
-  imageUrl String
+  id        String @id @default(uuid())
+  storeId   String
+  label     String
+  imageUrl  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // Billboard can have multiple categories
+  categories Category[]
+  // Targetting the field storeId, and refering to id from Store model
+  store      Store @relation("StoreToBillboard", fields: [storeId], references: [id])
 
 // fixes error with relation
   @@index([storeId])
 }
 
-// each category belongs to specific store (1-many, 1 store has
-// many categories)
+
 model Category {
-  id String @id @default(uuid())
-  storeId String
-  // categories can only exist inside a specific store
-  // targetting the field storeId, and refering to id from Store model
-  store Store @relation("StoreToCategory", fields: [storeId], references: [id])
-  billboardId String
-  // field billboardId is the referenced id from model Billboard
-  // Each category can only be associated with a single Billboard
-  billboard Billboard @relation(fields: [billboardId], references: [id])
-  name String
+  id        String @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  name      String
+  storeId   String
+  billboardId String
+  // targetting the field storeId, and refering to id from Store model
+  store     Store @relation("StoreToCategory", fields: [storeId], references: [id])
+  // field billboardId is the referenced id from model Billboard
+  billboard Billboard @relation(fields: [billboardId], references: [id])
+  products  Product[] @relation("CategoryToProduct")
 
 // fixes error with relation
   @@index([storeId])
@@ -73,6 +69,7 @@ model Size {
   // Size can only exist inside a specific store
   // targetting the field storeId, and refering to id from Store model
   store Store @relation("StoreToSize", fields: [storeId], references: [id])
+  products Product[]
   name String
   value String
   createdAt DateTime @default(now())
@@ -90,11 +87,82 @@ model Color {
   store Store @relation("StoreToColor", fields: [storeId], references: [id])
   name String
   value String
+  products Product[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
 // fixes error with relation
   @@index([storeId])
+}
+
+model Product {
+  id String @id @default(uuid())
+  // Color can only exist inside a specific store
+  // targetting the field storeId, and refering to id from Store model
+  storeId String
+  store Store @relation("StoreToProduct", fields: [storeId], references: [id])
+  categoryId String
+  category Category @relation("CategoryToProduct", fields: [categoryId], references: [id])
+  name String
+  price Decimal
+  isFeatured Boolean @default(false)
+  isArchived Boolean @default(false)
+  sizeId String
+  size Size @relation(fields: [sizeId], references: [id])
+  colorId String
+  color Color @relation(fields: [colorId], references: [id])
+  images Image[]
+  orderItems OrderItem[]
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+// fixes error with relation
+  @@index([storeId])
+  @@index([categoryId])
+  @@index([sizeId])
+  @@index([colorId])
+}
+
+model Image {
+  id String @id @default(uuid())
+  productId String
+  // cascade allows us to delete product
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url String
+ createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+}
+
+model Order {
+  id String @id @default(uuid())
+  storeId String
+  // Model can only exist inside a specific store
+  // targetting the field storeId, and refering to id from Store model
+  store Store @relation("StoreToOrder", fields: [storeId], references: [id])
+  orderItems OrderItem[]
+  isPaid Boolean @default(false)
+  phone String @default("")
+  address String @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId])
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+
+
+  @@index([productId])
+  @@index([orderId])
 }
 
 // at end run npx prisma generate before using query

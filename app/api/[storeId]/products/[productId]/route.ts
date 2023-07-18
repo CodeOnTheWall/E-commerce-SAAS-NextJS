@@ -8,51 +8,80 @@ import prismadb from "@/lib/prismadb";
 // individual GET
 export async function GET(
   req: Request,
-  { params }: { params: { billboardId: string } }
+  { params }: { params: { productId: string } }
 ) {
   try {
-    if (!params.billboardId) {
-      return new NextResponse("Billboard id is required", { status: 400 });
+    if (!params.productId) {
+      return new NextResponse("Product id is required", { status: 400 });
     }
 
     // deleteMany because userId isnt unique
-    const billboard = await prismadb.billboard.findUnique({
+    const product = await prismadb.product.findUnique({
       where: {
-        id: params.billboardId,
+        id: params.productId,
+      },
+      include: {
+        images: true,
+        category: true,
+        size: true,
+        color: true,
       },
     });
 
-    return NextResponse.json(billboard);
+    return NextResponse.json(product);
   } catch (error) {
-    console.log("[BILLBOARD_GET]", error);
+    console.log("[PRODUCT_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
 
-// individual PATCH
 export async function PATCH(
   req: Request,
-  { params }: { params: { storeId: string; billboardId: string } }
+  { params }: { params: { storeId: string; productId: string } }
 ) {
   try {
     const { userId } = auth();
     const body = await req.json();
-    const { label, imageUrl } = body;
+
+    const {
+      name,
+      price,
+      categoryId,
+      colorId,
+      sizeId,
+      images,
+      isFeatured,
+      isArchived,
+    } = body;
 
     if (!userId) {
       return new NextResponse("Unauthenticated", { status: 401 });
     }
 
-    if (!label) {
-      return new NextResponse("Label is required", { status: 400 });
+    if (!name) {
+      return new NextResponse("Name is required", { status: 400 });
+    }
+    if (!price) {
+      return new NextResponse("Price is required", { status: 400 });
+    }
+    if (!categoryId) {
+      return new NextResponse("Category id is required", { status: 400 });
+    }
+    if (!colorId) {
+      return new NextResponse("Color id is required", { status: 400 });
+    }
+    if (!sizeId) {
+      return new NextResponse("Size id is required", { status: 400 });
+    }
+    if (!images || !images.length) {
+      return new NextResponse("A Image is required", { status: 400 });
+    }
+    if (!params.productId) {
+      return new NextResponse("Product id is required", { status: 400 });
     }
 
-    if (!imageUrl) {
-      return new NextResponse("Image URL is required", { status: 400 });
-    }
-
-    if (!params.billboardId) {
-      return new NextResponse("Billboard id is required", { status: 400 });
+    if (!params.storeId) {
+      return new NextResponse("Store id is required", { status: 400 });
     }
 
     // confirming that this storeId exists for this userId
@@ -77,28 +106,49 @@ export async function PATCH(
     // the only unique field for our model is id, we also have storeId and
     // userId, but but these are not unique for this model, any model can have them
     // since a userId could have many models, its not unique
-    const billboard = await prismadb.billboard.updateMany({
+    await prismadb.product.update({
       where: {
-        id: params.billboardId,
+        id: params.productId,
       },
       data: {
-        label,
-        imageUrl,
+        name,
+        price,
+        categoryId,
+        colorId,
+        sizeId,
+        images: {
+          deleteMany: {},
+        },
+        isFeatured,
+        isArchived,
       },
     });
 
-    return NextResponse.json(billboard);
+    const product = await prismadb.product.update({
+      where: {
+        id: params.productId,
+      },
+      data: {
+        images: {
+          createMany: {
+            data: [...images.map((image: { url: string }) => image)],
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(product);
     // would be the way without NextResponse
     // return new Response(JSON.stringify(store), { status: 200 });
   } catch (error) {
-    console.log("[BILLBOARD_PATCH]", error);
+    console.log("[PRODUCT_PATCH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { storeId: string; billboardId: string } }
+  { params }: { params: { storeId: string; productId: string } }
 ) {
   try {
     const { userId } = auth();
@@ -107,8 +157,8 @@ export async function DELETE(
       return new NextResponse("Unauthenticated", { status: 401 });
     }
 
-    if (!params.billboardId) {
-      return new NextResponse("Billboard id is required", { status: 400 });
+    if (!params.productId) {
+      return new NextResponse("Product id is required", { status: 400 });
     }
 
     // confirming that this storeId exists for this userId
@@ -130,15 +180,15 @@ export async function DELETE(
     }
 
     // deleteMany because userId isnt unique
-    const billboard = await prismadb.billboard.deleteMany({
+    const product = await prismadb.product.deleteMany({
       where: {
-        id: params.billboardId,
+        id: params.productId,
       },
     });
 
-    return NextResponse.json(billboard);
+    return NextResponse.json(product);
   } catch (error) {
-    console.log("[BILLBOARD_DELETE]", error);
+    console.log("[PRODUCT_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

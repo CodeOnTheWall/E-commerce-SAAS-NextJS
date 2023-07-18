@@ -3,12 +3,12 @@ import { auth } from "@clerk/nextjs";
 
 import { redirect } from "next/navigation";
 
-export default async function SetupLayout({
-  children,
-}: {
+interface SetupLayoutProps {
   children: React.ReactNode;
-}) {
-  // check for current actice user
+}
+
+export default async function SetupLayout({ children }: SetupLayoutProps) {
+  // check for current active user
   const { userId } = auth();
 
   if (!userId) {

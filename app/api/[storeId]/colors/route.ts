@@ -28,7 +28,7 @@ export async function GET(
   }
 }
 
-// api for creating size
+// api for creating color
 export async function POST(
   req: Request,
   { params }: { params: { storeId: string } }
